@@ -1,3 +1,4 @@
+
 # Cache Simulator 
 
 This project simulates a cache memory for given parameters, using a SRIP replacement policy.
@@ -5,9 +6,10 @@ This project simulates a cache memory for given parameters, using a SRIP replace
 ## Contents (pending...)
 
 To compile:
-
-$`make`
-$ `gunzip -c mcf.trace.gz | cache -t < # > -a < # > -l < # >`
+```
+make
+gunzip -c mcf.trace.gz | cache -t < # > -a < # > -l < # >
+```
 
 With # being:
  1. Size of the cache in KB (-t)
