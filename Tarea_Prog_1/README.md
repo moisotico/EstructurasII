@@ -11,7 +11,7 @@ to run this program we require the boost c++ libraries. If we use a Debian or Ub
 ```
 sudo apt-get install libboost-all-dev 
 ```
-You can also search with
+You can also search with:
 
 ```
 aptitude search boost
@@ -35,5 +35,5 @@ With # being:
 make uninstall
 ```
 
-###References
+#### References
 [1] Jaleel A, Theobald K B, Steely Jr S C, et al. High performance cache replacement using re-reference interval prediction (RRIP)[C]//ACM SIGARCH Computer Architecture News. ACM, 2010, 38(3): 60-71.
