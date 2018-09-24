@@ -18,12 +18,36 @@ using namespace std;
 using namespace boost;
 
 //Cache functions
+  //print cache size
 void printsize( int tag_size, int index_size, int offset_size){
   cout  <<"| Tag=" << tag_size <<" |  Index=" << index_size <<
   " | Offset=" << offset_size <<" |" <<'\n';
-}
+};
+  // counts hits in cache
+  bool hit_test(int **cache,int select_set, int select_tag, int a){
+    for(int i=0; i < a; i++){
+      if(cache[select_set][i] == select_tag)
+        return(true);
+    }
+    return(false);
+  };
 
-//obtain a specific word
+  //counters
+  void counter_add(bool is_in_cache){
+    if (is_in_cache) {
+      hit_counter++;
+    }
+    else{
+      miss_counter++;
+    }
+  }
+
+  void srrip_method{
+  //
+  };
+
+//Control functions
+  //obtain a specific word
 string strWord(int index, string line) {
   int count = 0; // number of read words
   string word; // the resulting word
@@ -41,16 +65,16 @@ string strWord(int index, string line) {
       word += line[i];
     }
   }
-}
+};
 
-//obtain set of Trace element
+  //obtain set of Trace element
 unsigned int get_set(unsigned int DIR, int sets_number, int offset_size){
   unsigned int data_set;
   data_set= DIR>>offset_size;
   return (data_set%sets_number);
 };
 
-//obtain tag of Trace element
+  //obtain tag of Trace element
 unsigned int get_tag(unsigned int DIR, int index_size, int offset_size){
   unsigned int data_tag;
   int sum = index_size + offset_size;
@@ -100,6 +124,7 @@ int main(int argc, char** argv) {
   unsigned int sets_index;
   unsigned int select_tag;
   int LS;
+  bool is_in_cache;
 
   //trace element
   string* IN_linea = new string;
@@ -113,8 +138,8 @@ int main(int argc, char** argv) {
   printsize(tag_size,index_size,offset_size);
 
   //Event counters in cache move to class object maybe? .
-  long int cache_hit=0;
-  long int cache_miss=0;
+  long int hit_counter=0;
+  long int miss_counter=0;
   int data_ok=0;
 
   //Cache, asign memory
@@ -147,19 +172,24 @@ int main(int argc, char** argv) {
   clock_t start = clock();
   //get and split elements
   while(getline(cin,abc2)){
-    abc =abc2;
+    //get elements
     LS =  stoi(strWord(2, abc2)); //get 2nd word as an int
     Dir = stoul(strWord(3, abc2), nullptr, 16); //get third word as hex to int
     sets_index = get_set(Dir, sets_number, offset_size);
-    select_tag = get_tag(Dir, index_size, offset_size);
+    sets_tag = get_tag(Dir, index_size, offset_size);
+
+    //check cache
+    R_o_w = 
+    is_in_cache = hit_test(cache,sets_index, sets_tag, a);
+    counter_add(is_in_cache);
+
   }
 
-  cout << "Index: "<< hex << sets_index << '\n';
+/*
+  cout << "Index"<< hex << sets_index << '\n';
   cout << "Tag: " << hex <<select_tag << '\n';
   cout << "Direction: "<< Dir << '\n';
-  cout << "abc: "<< abc
-       << "index + offset" <<'\n';
-
+*/
   clock_t end = clock();
 
   //error handling
