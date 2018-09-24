@@ -1,22 +1,11 @@
 
-# Cache Simulator
+# SRRIP Cache Simulator
 
 This project simulates a cache memory for given parameters, using a SRRIP replacement, the Static Re-Reference Interval Prediction with Frequency Priority (RRIP-FP) from the ISCA'2010 paper [1].
 
 ## Contents (pending...)
 
 
-## Installing boost libraries
-to run this program we require the boost c++ libraries. If we use a Debian or Ubuntu distro, we run the following program:
-```
-sudo apt-get install libboost-all-dev 
-```
-You can also search with:
-
-```
-aptitude search boost
-```
-to find the packages you need and install them using the apt-get command.
 
 ### Compile and run program:
 ```
@@ -30,7 +19,7 @@ With # being:
  3. Associativity (-a)
 
 
-#### Remove program:
+### Remove program:
 ```
 make uninstall
 ```

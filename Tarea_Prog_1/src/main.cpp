@@ -4,15 +4,18 @@
 #include <iostream>
 #include <string>
 #include <math.h>
+#include <vector>
+#include<ctime>
 
 // boost libraries
 #include <boost/algorithm/string.hpp>
 
 // .hh
 //#include "../include/Cache.hh"
-#include "../include/TraceElement.hh"
+//#include "../include/TraceElement.hh"
 
 using namespace std;
+using namespace boost;
 
 //Cache functions
 void printsize( int tag_size, int index_size, int offset_size){
@@ -20,9 +23,38 @@ void printsize( int tag_size, int index_size, int offset_size){
   " | Offset=" << offset_size <<" |" <<'\n';
 }
 
- get_tag(unsigned int DIR, int index_Plus_offset){
+//obtain a specific word
+string strWord(int index, string line) {
+  int count = 0; // number of read words
+  string word; // the resulting word
+  for (int i = 0 ; i < line.length(); i++) { // iterate over all characters in 'line'
+    if (line[i] == ' ') { // if this character is a space we might be done reading a word from 'line'
+      if (line[i+1] != ' ') { // next character is not a space, so we are done reading a word
+        count++; // increase number of read words
+        if (count == index) { // was this the word we were looking for?
+            return word; // yes it was, so return it
+        }
+        word =""; // nope it wasn't .. so reset word and start over with the next one in 'line'
+      }
+    }
+    else { // not a space .. so append the character to 'word'
+      word += line[i];
+    }
+  }
+}
+
+//obtain set of Trace element
+unsigned int get_set(unsigned int DIR, int sets_number, int offset_size){
+  unsigned int data_set;
+  data_set= DIR>>offset_size;
+  return (data_set%sets_number);
+};
+
+//obtain tag of Trace element
+unsigned int get_tag(unsigned int DIR, int index_size, int offset_size){
   unsigned int data_tag;
-  data_tag=DIR>>index_Plus_offset;
+  int sum = index_size + offset_size;
+  data_tag=DIR>>sum;
   return(data_tag);
 };
 
@@ -59,11 +91,15 @@ int main(int argc, char** argv) {
 
   //Trace elements - move to class object maybe?
   char instr;
-  unsigned int dir;
+  unsigned int Dir;
   //unsigned int c;
   int IN_objct;
-  char abc[256];
+  string abc;
   string abc2;
+  vector<string> TracElem;
+  unsigned int sets_index;
+  unsigned int select_tag;
+  int LS;
 
   //trace element
   string* IN_linea = new string;
@@ -108,14 +144,23 @@ int main(int argc, char** argv) {
   }
 
 
-
+  clock_t start = clock();
+  //get and split elements
   while(getline(cin,abc2)){
-    // get instruction direction
-    cout << "linea:" << abc2 << '\n'; //print read line
-    //select_set=get_set(dir, N_sets_cache, offset_cache); //Obtengo el set al que va el dato.
-    //select_tag=get_tag(dir, index_Plus_offset);  //Obtengo 	el tag del dato.;
-
+    abc =abc2;
+    LS =  stoi(strWord(2, abc2)); //get 2nd word as an int
+    Dir = stoul(strWord(3, abc2), nullptr, 16); //get third word as hex to int
+    sets_index = get_set(Dir, sets_number, offset_size);
+    select_tag = get_tag(Dir, index_size, offset_size);
   }
+
+  cout << "Index: "<< hex << sets_index << '\n';
+  cout << "Tag: " << hex <<select_tag << '\n';
+  cout << "Direction: "<< Dir << '\n';
+  cout << "abc: "<< abc
+       << "index + offset" <<'\n';
+
+  clock_t end = clock();
 
   //error handling
   if (cin.bad()) {
@@ -124,9 +169,7 @@ int main(int argc, char** argv) {
     cout << "Format error" << '\n';
   }
 
-std::string text = "Let me split this into words";
-std::vector<std::string> results;
-boost::split(results, text, [](char c){return c == ' ';});
-
-
+  //Determine elapsed time
+  double simTime = (end - start) / CLOCKS_PER_SEC;
+  cerr << "Lapse time: " << simTime << " s" << endl;
 }
