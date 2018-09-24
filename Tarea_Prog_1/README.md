@@ -8,10 +8,12 @@ This project simulates a cache memory for given parameters, using a SRRIP replac
 
 
 ### Compile and run program:
+
 ```
 make 
 gunzip -c mcf.trace.gz | cache -t < # > -a < # > -l < # >
 ```
+Note: the program is still not finished
 
 With # being:
  1. Size of the cache in KB (-t)
