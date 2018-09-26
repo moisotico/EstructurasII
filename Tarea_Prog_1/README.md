@@ -10,7 +10,7 @@ This project simulates a cache memory for given parameters, using a SRRIP replac
 ### Compile and run program:
 
 ```
-make 
+make build
 gunzip -c mcf.trace.gz | cache -t < # > -a < # > -l < # >
 ```
 Note: the program is still not finished

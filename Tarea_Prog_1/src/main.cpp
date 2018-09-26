@@ -4,18 +4,17 @@
 #include <iostream>
 #include <string>
 #include <math.h>
-#include <vector>
+//#include <vector>
 #include<ctime>
 
-// boost libraries
-#include <boost/algorithm/string.hpp>
 
 // .hh
 //#include "../include/Cache.hh"
 //#include "../include/TraceElement.hh"
 
 using namespace std;
-using namespace boost;
+
+//using namespace boost;
 
 //Cache functions
   //print cache size
@@ -24,7 +23,7 @@ void printsize( int tag_size, int index_size, int offset_size){
   " | Offset=" << offset_size <<" |" <<'\n';
 };
   // counts hits in cache
-  bool hit_test(int **cache,int select_set, int select_tag, int a){
+  bool hit_test(long int **cache,int select_set, int select_tag, int a){
     for(int i=0; i < a; i++){
       if(cache[select_set][i] == select_tag)
         return(true);
@@ -33,7 +32,8 @@ void printsize( int tag_size, int index_size, int offset_size){
   };
 
   //counters
-  void counter_add(bool is_in_cache){
+  void counter_add(bool is_in_cache, long int hit_counter,
+    long int miss_counter){
     if (is_in_cache) {
       hit_counter++;
     }
@@ -42,8 +42,8 @@ void printsize( int tag_size, int index_size, int offset_size){
     }
   }
 
-  void srrip_method{
-  //
+  void srrip_method(){
+  std::cout << "aaa" << '\n';
   };
 
 //Control functions
@@ -91,6 +91,7 @@ int main(int argc, char** argv) {
   int l=0; //Line size [B]
   int a=0; // Asociativity
 
+
   int sizet = 0;
   //Parameters for CLI
   if (argc < 7){
@@ -120,9 +121,9 @@ int main(int argc, char** argv) {
   int IN_objct;
   string abc;
   string abc2;
-  vector<string> TracElem;
+  //vector<string> TracElem;
   unsigned int sets_index;
-  unsigned int select_tag;
+  unsigned int sets_tag;
   int LS;
   bool is_in_cache;
 
@@ -143,18 +144,20 @@ int main(int argc, char** argv) {
   int data_ok=0;
 
   //Cache, asign memory
-  int **cache = new int * [sets_number * sizeof(int *)];
+  long int **cache = new long int * [sets_number * sizeof(long int *)];
+  int **cache_db = new int * [sets_number * sizeof(int *)];
   if(cache == NULL){
     std::cout << "Not enough memory for the set" << '\n';
     return EXIT_FAILURE;
   }
 
-  // check if numbers make sense
+  // check if matrix numbers can be done
   for(int i = 0; i < sets_number; i++){
-    cache[i] = new int [a * sizeof(int)];
+    cache[i] = new long int [a * sizeof(long int)];
+    cache_db[i] = new int [a * sizeof(int)];
     if(cache[i] == NULL){
-      return EXIT_FAILURE;
       std::cout << "Not enough memory for asociativity" << '\n';
+      return EXIT_FAILURE;
     }
 
   }
@@ -165,6 +168,7 @@ int main(int argc, char** argv) {
   for(int i=0;i<sets_number; i++){
     for(int j=0 ; j<a ;j++){
       cache[i][j]=0;
+      cache_db[i][j]=0;
     }
   }
 
@@ -177,12 +181,11 @@ int main(int argc, char** argv) {
     Dir = stoul(strWord(3, abc2), nullptr, 16); //get third word as hex to int
     sets_index = get_set(Dir, sets_number, offset_size);
     sets_tag = get_tag(Dir, index_size, offset_size);
-
     //check cache
-    R_o_w = 
-    is_in_cache = hit_test(cache,sets_index, sets_tag, a);
-    counter_add(is_in_cache);
-
+    //R_o_w =
+    is_in_cache = hit_test( cache, sets_index, sets_tag, a);
+    cout <<"boolInCache:" <<is_in_cache << '\n';
+    counter_add(is_in_cache, hit_counter, miss_counter);
   }
 
 /*
@@ -200,6 +203,6 @@ int main(int argc, char** argv) {
   }
 
   //Determine elapsed time
-  double simTime = (end - start) / CLOCKS_PER_SEC;
+  double simTime = (end - start) * 1.0/ CLOCKS_PER_SEC;
   cerr << "Lapse time: " << simTime << " s" << endl;
 }
