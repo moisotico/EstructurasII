@@ -14,55 +14,91 @@ asignments
 #include <stdlib.h>  // for malloc and free
 #include <time.h>    // for execution time
 
+//Definitios
+#define MASTER 0
+#define TOTAL_OPS 1000 //number of processes neded for control
+
+
 void create_matrix_and_vector(int n_size){
   //create a nxn sized matrix
-  double matrix_A[size][size];
-  //create 2 n sized vectors: one with the data to multiply,
-  //the other stores the results
-  double vect_B[size], Results_vect[size];
-  int i, j;
-  //fill the vector with the element equal to the current position
-    vect_B[i] = i;
-  }
+  double matrix_A[n_size][n_size];
 
-/**
-Generate the matrix elements such that the element equals the sum of the
-row and the column number.
-**/
-  for (i = 0; i < count; i++) {
-    for (j = 0; j < count; j++) {
+  /**create 2 n sized vectors: one with the data to multiply,
+  the other stores the results**/
+  double vect_B[n_size], Results_vect[n_size];
+  int i, j;
+
+  /**
+  -Fill the vector with the element equal to the current position.
+  -Generate the matrix elements such that the element equals the sum of the
+  row and the column number.
+  **/
+  for(int i = 0; i < n_size; i++) {
+    vect_B[i] = i;
+    for(int j = 0; j < n_size; j++) {
       matrix_A[i][j] = i+j;
     }
   }
 
-
-  //Code to paralelize
-
-  for (i = 0; i < n; i++) {
-    for (j = 0; j < n; j++) {
-      Results_vect[i] += matrix_A[i][j] * vect_B[j]
+  //Code to paralelize with MPI using buffers with MPI_Bcast
+  for (i = 0; i < n_size; i++) {
+    for (j = 0; j < n_size; j++) {
+      Results_vect[i] += matrix_A[i][j] * vect_B[j];
     }
   }
-
-
 
 }
 
 
 
-int main(int argc, char const *argv[]) {
-  printf("Hello World!\n");
-/**
-  int i, j, n; //counters
-  double in_mat[][]; //input matrix, to be filled  wh data from positions
-  double in_vect[]; //pending
-  double result_vect[]; //store results
-**/
+int main(int argc, char *argv[]){
+  printf("This is a program to multiply a vector and a matrix using the MPI library \n");
+
   int myrank, nprocs;
   MPI_Init(&argc, &argv); //start MPI
   MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
   MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
 
+  if(myrank == MASTER) { // this is the code for the master to run
+    int size;
+    int finished;
+    printf("Enter the square matrix and vector size: ");
+    scanf("%d", &size);
+    time_t start_time;
+    time_t end_time;
+    start_time = time(NULL);
+
+    MPI_Bcast(&size, 1, MPI_INT, 0, MPI_COMM_WORLD); // the process with sends its data in buffer to all other procs, to store it in their buffer.
+    int to_do = TOTAL_OPS/(nprocs - 1); // there are nprocs - 1 slaves
+    to_do += 1; // increase to_do by 1 to avoid rounding errors in division
+    MPI_Bcast(&to_do, 1, MPI_INT, 0, MPI_COMM_WORLD); // send number of multiplications each slave must complete
+
+    srand(time(NULL)); // seed the random number generator using the current system time
+    int count = 0;
+    while(count < TOTAL_OPS) { // listen for slaves until the slaves have reported that enough work is done
+      int done_by_slave;
+      MPI_Status status;
+      MPI_Recv(&done_by_slave, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+      count += done_by_slave;
+    }
+    end_time = time(NULL) - start_time; // get the time the program took
+    printf("Seconds Taken %d\n", ((int)end_time));
+  }
+
+  else { // this is the code for the slaves to run
+    int size;
+    int to_do;
+    int done = 0;
+    MPI_Bcast(&size, 1, MPI_INT, 0, MPI_COMM_WORLD); // receive the size of the matrices to be multiplied
+    MPI_Bcast(&to_do, 1, MPI_INT, 0, MPI_COMM_WORLD); // receive how many multiplications to be done
+    while(to_do > done) { // run until we have done an adaquate number of operations
+      create_matrix_and_vector(size);
+      ++done;
+    }
+    MPI_Send(&done, 1, MPI_INT, 0, myrank, MPI_COMM_WORLD); // report how many multiplications we have done
+  }
+
+  MPI_Finalize();
   return 0;
 }
 
