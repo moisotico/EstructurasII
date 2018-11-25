@@ -11,7 +11,6 @@ double gPi = 0.0;  //  global accumulator for value computed
 pthread_mutex_t theMutex;
 int num_Dec, num_Threads;
 
-
 //Thread function
 void *pi_sum_runner(void* pi_Arg) {
   int thread_number = *((int*)pi_Arg);
@@ -21,7 +20,14 @@ void *pi_sum_runner(void* pi_Arg) {
   //adds value to partSum, increasing based on the number of threads
   for (int i = thread_number; i < num_Dec; i+=num_Threads) {
     x = -1 + (i + 0.5f) * h;
+    //if (i % 2 == 0) {
     partSum += sqrt(1.0 - x*x)*h;
+/*
+    }
+    else{
+      partSum += sqrt(1.0 - x*x)*h;
+    }
+*/
   }
 
   //locks and unlocks the thread until sum is done
@@ -35,19 +41,29 @@ void *pi_sum_runner(void* pi_Arg) {
 int main(int argc, char const *argv[]) {
   //error handling
   if(argc != 3) {
-    printf("Error: Sent a wrong number of parameters:%d", argc-1);
-    printf( "Please send 2 parameters in the format: <executable> <N. decimals> <N. threads>");
+    printf("Error: Sent a wrong number of parameters (%d). \n", argc-1);
+    printf( "Please send 2 parameters in the format: <executable> <N. decimals> <N. threads>.\nThe program will close now... \n");
+
     exit(1);
   }
+  num_Dec= atoi(argv[1]);
+  num_Threads = atoi(argv[2]);
+  //Error
+  if (num_Dec < 5) {
+    printf( "Error: You sent No.decimals = %d, please don't send No.decimals below 5.\n The program will close now... \n", num_Dec);
+   exit(1);
+  }
 
-  num_Threads = atoi(argv[1]);
-  num_Dec= atoi(argv[2]);
+  //Warning
+  if (num_Threads>num_Dec) {
+    printf("Warning!: the number of threads (%d) is bigger than the number of decimals (%d), computation might not be correct.\n", num_Threads, num_Dec);
+  }
 
   pthread_t tHandles[num_Threads];
   int tNum[num_Threads], i;
   pthread_mutex_init(&theMutex, NULL);
 
-  for ( i = 0; i <num_Threads ; ++i ) {
+  for ( i = 0; i <num_Threads ; ++i){
     tNum[i] = i;
     pthread_create(
       &tHandles[i],       // Returned thread handle
@@ -59,7 +75,7 @@ int main(int argc, char const *argv[]) {
     pthread_join(tHandles[i], NULL);
   }
 
-  printf("Computed value for pi: %f\n", 2 * gPi);
+  printf("Computed value for pi: %12.9f\n", 2 * gPi);
 
   //clean mutex ptr
   pthread_mutex_destroy(&theMutex);
