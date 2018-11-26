@@ -1,7 +1,7 @@
-# Programmed Homework No.2 - IE0521: Estructuras de computadoras digitales II
+# Programmed Homework No.2 - IE0521
 This repository consists of 3 different problems:
 * Problema1: A cache using the MESI protocol.
-* Problema2: Multiplication of matrices and vectors in MPI
+* Problema2: Multiplication of matrices and vectors in MPI.
 * Problema3: Calculation of the constant pi via pthreads.
 
 ## Getting Started
