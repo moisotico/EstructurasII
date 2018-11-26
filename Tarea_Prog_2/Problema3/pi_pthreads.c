@@ -22,12 +22,6 @@ void *pi_sum_runner(void* pi_Arg) {
     x = -1 + (i + 0.5f) * h;
     //if (i % 2 == 0) {
     partSum += sqrt(1.0 - x*x)*h;
-/*
-    }
-    else{
-      partSum += sqrt(1.0 - x*x)*h;
-    }
-*/
   }
 
   //locks and unlocks the thread until sum is done
