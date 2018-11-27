@@ -75,6 +75,7 @@ void print_Results(int n_size, double Results_vect[n_size])
   **/
 
 int main(int argc, char *argv[]){
+  clock_t begin = clock();
   int myrank, nprocs;
   MPI_Init(&argc, &argv); //start MPI
   MPI_Comm_size(MPI_COMM_WORLD, &nprocs); //nproc means the number of processes
@@ -127,8 +128,8 @@ int main(int argc, char *argv[]){
     }
 
     print_Results(size, Results_vect);
-    end_time = time(NULL) - start_time; // get the time the program took
-    printf("Seconds Taken %d\n", ((int)end_time));
+    double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+    printf("Execution time: %d\n",time_spent);
   }
 
   /**Slave Process**/

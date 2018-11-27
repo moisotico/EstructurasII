@@ -4,8 +4,9 @@
 **/
 #include <stdio.h>
 #include <stdlib.h>
-#include <pthread.h> //to handle POSIX threads
+#include <pthread.h>  //to handle POSIX threads
 #include <math.h>
+#include <time.h>     //to calculate time
 
 double gPi = 0.0;  //  global accumulator for value computed
 pthread_mutex_t theMutex;
@@ -34,6 +35,7 @@ void *pi_sum_runner(void* pi_Arg) {
 
 int main(int argc, char const *argv[]) {
   //error handling
+  clock_t begin = clock();
   if(argc != 3) {
     printf("Error: Sent a wrong number of parameters (%d). \n", argc-1);
     printf( "Please send 2 parameters in the format: <executable> <N. decimals> <N. threads>.\nThe program will close now... \n");
@@ -70,7 +72,10 @@ int main(int argc, char const *argv[]) {
   }
 
   printf("Computed value for pi: %12.9f\n", 2 * gPi);
+  clock_t end = clock();
+  double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 
+  printf("Execution time: %d\n",time_spent);
   //clean mutex ptr
   pthread_mutex_destroy(&theMutex);
   return 0;

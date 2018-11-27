@@ -5,15 +5,23 @@ This repository consists of 3 different problems:
 * Problema3: Calculation of the constant pi via pthreads.
 
 ## Getting Started
-(Pending)
+clone this repo with
+ ```
+ git clone https://github.com/moisotico/EstructurasII.git
+ ```
 
 ## Installing
 Once downloaded, use the following commands to make and compile the code
 ```
+cd </repo directory/Tarea_Prog_2>
 make build
 ```
 
 ## Running
+To run Problema2 copy the following command in the terminal:
+(Command Pending)
+
+
 To run Problema2 copy the following command in the terminal, with representing the size of the
 matrix and vector to multiply.
 ```
