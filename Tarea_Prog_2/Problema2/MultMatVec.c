@@ -19,60 +19,60 @@ asignments
 #define MASTER 0
 #define M_Size 5
 void create_matrix_and_vector(
-            unsigned int n_size,
-            double matrix_A[n_size][n_size],
-            double vect_B[n_size])
-{
-  int i,j;
-  /**
-  -Fill the vector and  the matrix  with the element equal to the current position (the sum of current row and column in the matrix)  **/
-  printf("Input matrix: \n");
-  for( i = 0; i < n_size; i++) {
-    for(j = 0; j < n_size; j++) {
-      matrix_A[i][j] = i+j;
-      printf("%.0lf    ", matrix_A[i][j]);
+  unsigned int n_size,
+  double matrix_A[n_size][n_size],
+  double vect_B[n_size])
+  {
+    int i,j;
+    /**
+    -Fill the vector and  the matrix  with the element equal to the current position (the sum of current row and column in the matrix)  **/
+    printf("Input matrix: \n");
+    for( i = 0; i < n_size; i++) {
+      for(j = 0; j < n_size; j++) {
+        matrix_A[i][j] = i+j;
+        printf("%.0lf    ", matrix_A[i][j]);
+      }
+      printf("\n");
     }
-    printf("\n");
-  }
 
-  printf("Input vector: \n");
-  for (i = 0; i < n_size; i++) {
-    vect_B[i] = n_size - (i+1);
-    printf("%.0lf\n",vect_B[i]);
+    printf("Input vector: \n");
+    for (i = 0; i < n_size; i++) {
+      vect_B[i] = n_size - (i+1);
+      printf("%.0lf\n",vect_B[i]);
+    }
   }
-}
 
   //Code to paralelize with MPI using buffers with MPI_Bcast
 
-void multiply_row(
+  void multiply_row(
     int i,
     unsigned int n_size,
     double matrix_A[n_size][n_size],
     double vect_B[n_size],
     double Results_vect[n_size] )
-{
-  for (int j = 0; j < n_size; j++) {
+    {
+      for (int j = 0; j < n_size; j++) {
+        Results_vect[i] += matrix_A[i][j] * vect_B[j];
+      }
+    }
+
+
+    void print_Results(int n_size, double Results_vect[n_size])
+    {
+      printf("Results vector: \n");
+      for (int i = 0; i < n_size; i++)
+      printf("%.0lf\n",Results_vect[i]);
+    }
+    /**
+    printf("Results vector: \n");
+    for (i = 0; i < n_size; i++) {
+    for (j = 0; j < n_size; j++) {
     Results_vect[i] += matrix_A[i][j] * vect_B[j];
   }
+  printf("%.0lf\n",Results_vect[i]);
 }
-
-
-void print_Results(int n_size, double Results_vect[n_size])
-{
-  printf("Results vector: \n");
-  for (int i = 0; i < n_size; i++)
-    printf("%.0lf\n",Results_vect[i]);
 }
-  /**
-  printf("Results vector: \n");
-  for (i = 0; i < n_size; i++) {
-    for (j = 0; j < n_size; j++) {
-      Results_vect[i] += matrix_A[i][j] * vect_B[j];
-    }
-    printf("%.0lf\n",Results_vect[i]);
-  }
-}
-  **/
+**/
 
 int main(int argc, char *argv[]){
   clock_t begin = clock();
@@ -96,10 +96,10 @@ int main(int argc, char *argv[]){
     int i, j;
 
     while(size == 0){
-    //printf("Enter a valid size for the square matrix and vector size:");
-    //scanf(" %5d", &size); //user input
-    size = M_Size;
-    printf("\nEntered size for the square matrix and vector: %d\n", size);
+      //printf("Enter a valid size for the square matrix and vector size:");
+      //scanf(" %5d", &size); //user input
+      size = M_Size;
+      printf("\nEntered size for the square matrix and vector: %d\n", size);
     }
     //create values
     create_matrix_and_vector(size, matrix_A,vect_B);
@@ -110,12 +110,10 @@ int main(int argc, char *argv[]){
     MPI_Send(&size, 1, MPI_INT, myrank, 5, MPI_COMM_WORLD); // the process with sends its data in buffer to all other procs, to store it in their buffer.
     int to_do = (int)round(size/(nprocs-1)); // there number of rows to paralelize equals size
     //to_do += 1; // increase to_do by 1 to avoid rounding errors in division
-    MPI_Bcast(&to_do, 1, MPI_INT, 0, MPI_COMM_WORLD); // send number of multiplications each slave must complete
-
-    MPI_Bcast(&matrix_A, 1, MPI_INT, 0, MPI_COMM_WORLD);
-    MPI_Bcast(&vect_B, 1, MPI_INT, 0, MPI_COMM_WORLD);
-    MPI_Bcast(&Results_vect, 1, MPI_INT, 0, MPI_COMM_WORLD);
-
+    MPI_Bcast(&to_do, 1, MPI_INT, 6, MPI_COMM_WORLD); // send number of multiplications each slave must complete
+    MPI_Bcast(&matrix_A, size*size, MPI_INT, 7, MPI_COMM_WORLD);
+    MPI_Bcast(&vect_B, size, MPI_INT, 8, MPI_COMM_WORLD);
+    MPI_Bcast(&Results_vect, size, MPI_INT, 9, MPI_COMM_WORLD);
     //srand(time(NULL));
     int count = 0;
     while(count < size) { // listen for slaves until the slaves have reported that enough work is done
@@ -128,8 +126,9 @@ int main(int argc, char *argv[]){
     }
 
     print_Results(size, Results_vect);
+    clock_t end = clock();
     double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-    printf("Execution time: %d\n",time_spent);
+    printf("Execution time: %0.1f\n",time_spent);
   }
 
   /**Slave Process**/
@@ -140,13 +139,13 @@ int main(int argc, char *argv[]){
     int tot_rows; //total rows
     printf("Proceso esclavo %d\n por recibir dato", myrank);
     MPI_Recv(&size, 1, MPI_INT, 0,  5, MPI_COMM_WORLD, &status); // receive the size of the matrices to be multiplied
-    MPI_Bcast(&to_do, 1, MPI_INT, 0, MPI_COMM_WORLD); // receive how many multiplications to be done
+    MPI_Bcast(&to_do, 1, MPI_INT, 6, MPI_COMM_WORLD); // receive how many multiplications to be done
 
     double matrix_A[size][size];
     double vect_B[size], Results_vect[size];
-    MPI_Bcast(&matrix_A, 1, MPI_INT, 0, MPI_COMM_WORLD);
-    MPI_Bcast(&vect_B, 1, MPI_INT, 0, MPI_COMM_WORLD);
-    MPI_Bcast(&Results_vect, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Bcast(&matrix_A, size*size, MPI_INT, 7, MPI_COMM_WORLD);
+    MPI_Bcast(&vect_B, size, MPI_INT, 8, MPI_COMM_WORLD);
+    MPI_Bcast(&Results_vect, size , MPI_INT, 9, MPI_COMM_WORLD);
     print_Results(size, vect_B);
 
     offset = to_do*myrank-1 + done;
@@ -155,7 +154,7 @@ int main(int argc, char *argv[]){
       ++done;
       offset= to_do*myrank-1 + done;
     }
-    MPI_Send(&Results_vect, 1, MPI_INT, 0,myrank, MPI_COMM_WORLD); //report changes in matrix
+    MPI_Send(&Results_vect, size, MPI_INT, 0,myrank, MPI_COMM_WORLD); //report changes in matrix
     MPI_Send(&done, 1, MPI_INT, 0, myrank, MPI_COMM_WORLD); // report how many multiplications we have done
   }
 

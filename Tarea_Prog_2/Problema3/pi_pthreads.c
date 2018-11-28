@@ -75,7 +75,7 @@ int main(int argc, char const *argv[]) {
   clock_t end = clock();
   double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 
-  printf("Execution time: %d\n",time_spent);
+  printf("Execution time: %0.1f\n",time_spent);
   //clean mutex ptr
   pthread_mutex_destroy(&theMutex);
   return 0;
